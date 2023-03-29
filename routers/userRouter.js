@@ -3,7 +3,7 @@ const express = require('express');
 const { adminLogin, adminRegister, adminForget, adminProfile, adminUpdate, adminReset } = require('../controller/adminController');
 const {categoryGet,categoryPost,categoryPut,categoryDelete, categoryPatch} = require('../controller/categoryController');
 const homeGet = require('../controller/homeController');
-const {productGet,productPost,productPut,productDelete} = require('../controller/productController');
+const {productGet,productPost,productPut,productDelete, productVariationGet, productVariationPost, productVariationPut, productVariationDelete} = require('../controller/productController');
 const authentication = require('../middelware/authentication');
 const userRouter = new express.Router();
 const multer  = require('multer');
@@ -13,6 +13,7 @@ const {statesGet,statesPost,statesPut,statesDelete,districtGet,districtPost,dist
   blocksGet,blocksPost,blocksPut,blocksDelete, filterWithStateGet, statesPatch, districtPatch, blocksPatch} = require('../controller/productAddressController');
 const {readFile,uploadFile, deleteFile} = require('../helper/readfile');
 const { variationGet, variationPost, variationPut, variationDelete, variationCategoryGet, variationTypeGet, variationTypePost, variationTypePut, variationTypeDelete, variationTypePatch } = require('../controller/variationController');
+const statsGet = require('../controller/statsController');
 
 
 
@@ -49,6 +50,7 @@ var storage = multer.diskStorage({
 
 
 
+userRouter.get('/api/stats' , statsGet)
 
 /* admin api router */
 userRouter.post('/api/login' , adminLogin);
@@ -72,7 +74,6 @@ userRouter.get('/api/brand', brandGet);
 userRouter.post('/api/brand',authentication , brandPost);
 userRouter.put('/api/brand/:id',authentication , brandPut );
 userRouter.patch('/api/brand/:id',authentication , brandPatch );
-
 userRouter.delete('/api/brand/:id',authentication , brandDelete );
 
 /* model api router */
@@ -144,6 +145,10 @@ userRouter.post('/api/product',authentication, upload.single('image') , productP
 userRouter.put('/api/product/:id',authentication, upload.single('image') , productPut );
 userRouter.delete('/api/product/:id',authentication , productDelete );
 
+userRouter.get('/api/product-variation', productVariationGet);
+userRouter.post('/api/product-variation',authentication, productVariationPost);
+userRouter.put('/api/product-variation/:id',authentication,productVariationPut );
+userRouter.delete('/api/product-variation/:id',authentication, productVariationDelete );
 
 
 

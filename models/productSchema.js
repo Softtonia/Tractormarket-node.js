@@ -167,6 +167,10 @@ const productSchema = new mongoose.Schema({
     },
 
     gallery : Array,
+    variationdata : {
+        type : Array,
+        default : null
+    },
 
 
     slugs : String,

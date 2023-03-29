@@ -3,11 +3,239 @@ var slug = require('slug');
 const filedelete = require("../helper/filedelete");
 const ProductData = require('../models/productSchema');
 var slugify = require('slugify');
+const { VariationTypeData } = require('../models/variationSchema');
+const { default: mongoose } = require('mongoose');
+const CategoryData = require('../models/categorySchema');
+const BrandData = require('../models/brandSchema');
+const ModelData = require('../models/modelSchema');
+
+// const productGet = async (req,res) =>{
+//     try{
+        
+//             const findProduct = await ProductData.find();
+
+//             if(findProduct){
+//                 res.status(200).json({status:true , message:'success' , data : findProduct })
+//             }
+//             else{
+//                 res.status(500).json({status:false , message:'failed'})
+//             }
+
+//     }
+//     catch(err){
+//         res.status(406).json({status:false , error:err})
+//     }
+// }
+
 
 const productGet = async (req,res) =>{
     try{
         
-            const findProduct = await ProductData.find();
+            const findProduct = await ProductData.aggregate([
+                {
+                    $lookup : {
+                        from : CategoryData.collection.name,
+                        let : {cid : '$category_info'},
+                        pipeline : [
+                            {
+                                $match : {
+                                    $expr : {
+                                        $and : [{
+                                            $eq : ['$_id' , '$$cid']
+                                        }]
+                                    }
+                                }
+                            },
+                            {
+                                $project : {
+                                    __v : 0,
+                                    category_image : 0,
+                                    state : 0 ,
+                                    createdAt : 0,
+                                    updatedAt : 0,
+                                    _id : 0
+                                }
+                            }
+                        ],
+                        as : 'category_data'
+                    
+                    }
+                },
+                {
+                    $lookup : {
+                        from : BrandData.collection.name,
+                        let : {cid : '$brand_info'},
+                        pipeline : [
+                            {
+                                $match : {
+                                    $expr : {
+                                        $and : [{
+                                            $eq : ['$_id' , '$$cid']
+                                        }]
+                                    }
+                                }
+                            },
+                            {
+                                $project : {
+                                    __v : 0,
+                                    brand_image : 0,
+                                    category_name : 0,
+                                    category_info : 0,
+                                    state : 0 ,
+                                    slugs : 0,
+                                    createdAt : 0,
+                                    updatedAt : 0,
+                                    _id : 0
+                                }
+                            }
+                        ],
+                        as : 'brand_data'
+                    
+                    }
+                },
+                {
+                    $lookup : {
+                        from : ModelData.collection.name,
+                        let : {cid : '$model_info'},
+                        pipeline : [
+                            {
+                                $match : {
+                                    $expr : {
+                                        $and : [{
+                                            $eq : ['$_id' , '$$cid']
+                                        }]
+                                    }
+                                }
+                            },
+                            {
+                                $project : {
+                                    __v : 0,
+                                    model_image : 0,
+                                    category_name : 0,
+                                    category_info : 0,
+                                    brand_info : 0,
+                                    brand_name : 0,
+                                    state : 0 ,
+                                    slugs : 0,
+                                    createdAt : 0,
+                                    updatedAt : 0,
+                                    _id : 0
+                                }
+                            }
+                        ],
+                        as : 'model_data'
+                    
+                    }
+                },
+                {
+                    $lookup : {
+                        from : BrandData.collection.name,
+                        let :  { cid : '$category_info' } ,
+                        pipeline : [
+                            {
+                                $match : {
+                                    $expr : {
+                                        $and: [
+                                            {
+                                              $eq: ["$category_info", "$$cid"]
+                                            },
+                                          ],
+                                    }
+                                }
+                            },
+                            {
+                                $project : {
+                                    
+                                    category_name : 0,
+                                    category_info :0,
+                                    __v : 0,
+                                    slugs : 0,
+                                    createdAt : 0,
+                                    updatedAt : 0,
+                                    state: 0 ,
+                                    brand_image : 0,
+                                }
+                            }
+                        ],
+                        as : 'brands_aviable'
+                    },
+
+
+                },
+                {
+                    $lookup : {
+                        from : ModelData.collection.name,
+                        let :  { cid : '$brand_info' } ,
+                        pipeline : [
+                            {
+                                $match : {
+                                    $expr : {
+                                        $and: [
+                                            {
+                                              $eq: ["$brand_info", "$$cid"]
+                                            },
+                                            {
+                                                $eq: ["$state", true]
+                                              },
+                                          ],
+                                    }
+                                }
+                            },
+                            {
+                                $project : {
+                                    
+                                    category_name : 0,
+                                    category_info :0,
+                                    __v : 0,
+                                    slugs : 0,
+                                    createdAt : 0,
+                                    updatedAt : 0,
+                                    model_image : 0,
+                                }
+                            }
+                        ],
+                        as : 'model_aviable'
+                    },
+
+
+                },
+                {
+                    $lookup : {
+                        from : VariationTypeData.collection.name,
+                        let :  { cid : '$category_info' } ,
+                        pipeline : [
+                            {
+                                $match : {
+                                    $expr : {
+                                        $and: [
+                                            {
+                                              $eq: ["$category_info", "$$cid"]
+                                            },{
+                                                $eq: ["$state", true]
+                                              },
+                                          ],
+                                    }
+                                }
+                            },
+                            {
+                                $project : {
+                                    
+                                    category_name : 0,
+                                    category_info :0,
+                                    __v : 0,
+                                    slugs : 0,
+                                    createdAt : 0,
+                                    updatedAt : 0,
+                                    model_image : 0,
+                                }
+                            }
+                        ],
+                        as : 'varient_aviable'
+                    },
+
+
+                }
+            ]);
 
             if(findProduct){
                 res.status(200).json({status:true , message:'success' , data : findProduct })
@@ -21,7 +249,6 @@ const productGet = async (req,res) =>{
         res.status(406).json({status:false , error:err})
     }
 }
-
 
 const productPost = async (req,res) =>{
     try{
@@ -65,39 +292,10 @@ const productPost = async (req,res) =>{
         res.status(400).json({status:false , message:'failed : some data missing'})
         }
 
-
-        /* slug code phase - 1 */
-        // let newslug
-        // if(req.body.slugs){
-        //     newslug  = req.body.slugs.split(" ").join("-");
-        // }
-        // console.log(newslug, '======= 000')
-        // const slugVerify = await ProductData.find({slugs:newslug}).countDocuments();
-        // console.log(slugVerify , 'slug status')
-        // if(newslug && slugVerify>0){
-        //     return res.status(408).json({status:false , message:'failed : slug already used'})
-        // }
-
         else{
-
-            // let file1;
-
-            // if(req.file){
-            //     file1 = process.env.SERVER_FILEUPLOAD_URL+req.file.filename;
-            // }
-
-            // let gallery = [front_image, back_image, left_image, right_image,];
-
-  
-           /* slug code phase - 2 */
-        //    if(!newslug || slugVerify==0){
-        //     console.log(newslug , 'process called 02')
-        //     newslug = slugify(newslug || slugify(req.body.model_name)+'-'+randomstring.generate(4).toLocaleLowerCase() );
-        //     }
-
+           
             const newProduct = new ProductData(req.body);
             await newProduct.save();
-
             if(newProduct){
                 res.status(200).json({status:true , message:'success' , data : newProduct })
             }
@@ -112,7 +310,6 @@ const productPost = async (req,res) =>{
         res.status(406).json({status:false , error:err})
     }
 }
-
 
 const productPut = async (req,res) =>{
     try{
@@ -168,6 +365,98 @@ const productDelete = async (req,res) =>{
     }
 }
 
-module.exports = {productGet,productPost,productPut,productDelete};
+
+
+
+
+const productVariationGet = async (req,res) =>{
+    try{
+            const findItem = await VariationProductData.find();
+            if(findItem){
+                res.status(200).json({status:true , message:'success' , data : findItem })
+            }
+            else{
+                res.status(500).json({status:false , message:'failed'})
+            }
+    }
+    catch(err){
+        res.status(406).json({status:false , error:err})
+    }
+}
+
+const productVariationPost = async (req,res) =>{
+    try{
+        let { product_info , variation_name , variation_value } = req.body;
+        if(!product_info){
+        res.status(400).json({status:false , message:'failed : some data missing'})
+        }
+  
+
+        else{
+            variation_value = variation_value.toLowerCase();
+            const newItem = new VariationProductData({
+                product_info , variation_name , variation_value
+            });
+            await newItem.save();
+
+            if(newItem){
+                res.status(200).json({status:true , message:'success' , data : newItem })
+            }
+            else{
+                res.status(500).json({status:false , message:'failed'})
+            }
+
+        }
+
+    }
+    catch(err){
+        res.status(406).json({status:false , error:err})
+    }
+}
+
+const productVariationPut = async (req,res) =>{
+    try{
+        let {variation_name , variation_value } = req.body;
+
+        const findItem = await VariationProductData.findById({_id:req.params.id});
+
+        if(findItem){
+
+            variation_value = variation_value.toLowerCase();
+            findItem.variation_name = variation_name || findItem.variation_name;
+            findItem.variation_value = variation_value || findItem.variation_value;
+            await findItem.save();
+            res.status(200).json({status:true , message:'updation success' , data : findItem })
+        }
+
+        else{
+            res.status(500).json({status:false , message:'updation failed'})
+        }
+
+
+    }
+    catch(err){
+        res.status(406).json({status:false , error:err})
+    }
+}
+
+const productVariationDelete = async (req,res) =>{
+    try{
+
+        const findDelete = await VariationProductData.findByIdAndDelete({_id:req.params.id});
+        if(findDelete){
+            res.status(200).json({status:true , message:'deletion success'})
+        }
+        else{
+            res.status(500).json({status:false , message:'deletion failed'})
+        }
+
+    }
+    catch(err){
+        res.status(406).json({status:false , error:err})
+    }
+}
+
+module.exports = {productGet,productPost,productPut,productDelete,productVariationGet,productVariationPost,productVariationPut,productVariationDelete};
 
 

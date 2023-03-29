@@ -69,10 +69,13 @@ const adminRegister = async (req,res) =>{
             }
             else{
 
+           
+                console.log(email.toLowerCase() , 'lower case')
+
                 const passwordHash = await bcrypt.hash(password , 10);
                 console.log(passwordHash);
                 let newAdmin = new AdminData({
-                    email,password:passwordHash,phone,address
+                    email:email.toLowerCase(), password:passwordHash, phone, address
                 });
                 await newAdmin.save();
 

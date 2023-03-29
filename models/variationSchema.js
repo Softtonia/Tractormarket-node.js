@@ -1,5 +1,6 @@
 const mongoose  = require('mongoose');
 const CategoryData = require('./categorySchema');
+const ProductData = require('./productSchema');
 
 const variationSchema = mongoose.Schema({
     category_info : {
@@ -70,4 +71,25 @@ const VariationTypeData = mongoose.model( 'variationtypedata' , variationTypeSch
 
 
 
-module.exports = {VariationData,VariationTypeData};
+
+
+const variationProductSchema = mongoose.Schema({
+    product_info : {
+        type : mongoose.Schema.Types.ObjectId,
+        ref : ProductData,
+        require : true,
+    },
+    variation_name : {
+        type:String,
+        required : true,
+        trim : true,
+    },
+
+    variation_value : {
+        type:String,
+        default : 'text'
+    }
+})
+const VariationProductData = mongoose.model( 'variationproductdata' , variationProductSchema );
+
+module.exports = {VariationData,VariationTypeData,VariationProductData};

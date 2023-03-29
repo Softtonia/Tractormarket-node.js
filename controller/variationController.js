@@ -124,7 +124,6 @@ const variationTypeGet = async (req,res) =>{
         let findVariation;
         if(req.params.id){
         findVariation = await VariationTypeData.find({category_info : req.params.id}).select('').populate('category_info');
-
         }
        else{
         findVariation = await VariationTypeData.find().select('').populate('category_info');
@@ -255,7 +254,7 @@ const variationTypePatch = async (req,res) =>{
     catch(err){
         res.status(406).json({status:false , error:err})
     }
-  }
+}
 
 
 

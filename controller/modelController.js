@@ -93,8 +93,7 @@ const modelGet = async (req,res) =>{
                         ],
                         as : 'current_brands'
                     },
-                }
-                ,
+                },
                 {
                     $lookup : {
                         from : CategoryData.collection.name,
